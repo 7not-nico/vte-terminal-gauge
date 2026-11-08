@@ -1,0 +1,21 @@
+image: archlinux
+sources:
+  - https://github.com/alacritty/vtebench
+tasks:
+  - rustup: |
+      curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain stable --profile minimal -c clippy
+  - stable: |
+      cd vtebench
+      $HOME/.cargo/bin/cargo +stable test
+  - clippy: |
+      cd vtebench
+      $HOME/.cargo/bin/cargo +stable clippy
+  - rustfmt: |
+      $HOME/.cargo/bin/rustup toolchain install nightly -c rustfmt
+      cd vtebench
+      $HOME/.cargo/bin/cargo +nightly fmt -- --check
+  - msrv: |
+      cd vtebench
+      msrv=$(cat Cargo.toml | grep "rust-version" | sed 's/.*"\(.*\)".*/\1/')
+      $HOME/.cargo/bin/rustup toolchain install --profile minimal $msrv
+      $HOME/.cargo/bin/cargo +$msrv test
